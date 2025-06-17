@@ -1,4 +1,4 @@
-import { useState,useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
@@ -7,17 +7,26 @@ function App() {
   const [flashcards, setFlashcards] = useState([]);
   const [current, setCurrent] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
+  const [selectedChoice, setSelectedChoice] = useState(null);
+  const [isCorrect, setIsCorrect] = useState(null);
+
 
   useEffect(() => {
     fetch('https://opensheet.elk.sh/1XVzAKIEB71DdcHChXd47Ms3NJ6FBpuTs23E0HwXlNaU/quiz_data')
       .then((res) => res.json())
       .then((data) => {
-        const formatted = data.map((row, index) => ({
-          id: `q${index + 1}`,
-          question: row.Question,
-          answer: row.Answer,
-          category: row.Category,
-        }));
+        const formatted = data.map((row, index) => {
+          const choices = [row.Answer, row.Choice1, row.Choice2, row.Choice3];
+          // Shuffle choices
+          const shuffled = choices.sort(() => Math.random() - 0.5);
+          return {
+            id: `q${index + 1}`,
+            question: row.Question,
+            answer: row.Answer,
+            category: row.Category,
+            choices: shuffled,
+          };
+        });
         setFlashcards(formatted);
       })
       .catch((err) => {
@@ -26,24 +35,19 @@ function App() {
   }, []);
 
   const nextCard = () => {
-    if (flashcards.length === 0)
-        return;
-    setShowAnswer(false);
-    if (current < flashcards.length - 1)
-      setCurrent(current + 1)
-    else
-      setCurrent(0);
-  }
+    if (flashcards.length === 0) return;
+    setSelectedChoice(null);
+    setIsCorrect(null);
+    setCurrent((prev) => (prev + 1) % flashcards.length);
+  };
 
   const prevCard = () => {
-    if (flashcards.length === 0)
-        return;
-    setShowAnswer(false);
-    if (current > 0)
-      setCurrent(current - 1)
-    else
-      setCurrent(flashcards.length - 1);
-  }
+    if (flashcards.length === 0) return;
+    setSelectedChoice(null);
+    setIsCorrect(null);
+    setCurrent((prev) => (prev - 1 + flashcards.length) % flashcards.length);
+  };
+
 
   return (
     <>
@@ -53,30 +57,50 @@ function App() {
 
           {/*This is the flashcard area */}
           {flashcards.length > 0 ? (
-            <div 
-              className="border border-gray-300 rounded-lg p-6 mb-4 bg-gray-50 hover:bg-gray-100"
-              onClick={() => setShowAnswer(!showAnswer)}
-            >
-            <p className="text-lg">
-              {showAnswer ? flashcards[current].answer : flashcards[current].question}
-            </p>
-            <p className="text-sm text-gray-500 mt-2">
-              (Click to {showAnswer ? "hide" : "reveal"} answer)
-            </p>
-          </div>
+            <div className="mb-4">
+              <p className="text-lg font-medium mb-4">{flashcards[current].question}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {flashcards[current].choices.map((choice, index) => (
+                  <button
+                    key={index}
+                    className={`w-full px-4 py-2 rounded border text-left ${selectedChoice
+                        ? choice === flashcards[current].answer
+                          ? "bg-green-200 border-green-400"
+                          : choice === selectedChoice
+                            ? "bg-red-200 border-red-400"
+                            : "bg-gray-100"
+                        : "bg-white hover:bg-gray-100"
+                      }`}
+                    disabled={selectedChoice !== null}
+                    onClick={() => {
+                      setSelectedChoice(choice);
+                      setIsCorrect(choice === flashcards[current].answer);
+                    }}
+                  >
+                    {choice}
+                  </button>
+                ))}
+              </div>
+              {selectedChoice && (
+                <p className="mt-4 text-sm text-gray-600">
+                  {isCorrect ? "✅ Correct!" : `❌ Incorrect. The correct answer is "${flashcards[current].answer}".`}
+                </p>
+              )}
+            </div>
           ) : (
             <p className="text-gray-600 mb-6">Loading flashcards...</p>
           )}
-          
+
+
 
           <div className="flex justify-between gap-4">
-            <button 
+            <button
               className="bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600"
-              onClick={prevCard}  
+              onClick={prevCard}
             >
               Previous
             </button>
-            <button 
+            <button
               className="bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600"
               onClick={nextCard}
             >
