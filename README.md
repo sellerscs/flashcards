@@ -1,12 +1,79 @@
-# React + Vite
+# Flashcard Quiz App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A simple React-based flashcard quiz application that dynamically loads quiz questions from a publicly shared Google Sheet using the [OpenSheet](https://opensheet.elk.sh/) API. Users can cycle through flashcards, click to reveal answers, and test their knowledge in a clean, responsive UI.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Loads flashcard data from a Google Sheet
+- Click to toggle between question and answer
+- Randomized multiple-choice options (internally shuffled)
+- Previous/Next card navigation
+- Responsive, mobile-friendly design with TailwindCSS
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- React
+- TailwindCSS
+- OpenSheet API for Google Sheets integration
+
+## Project Structure
+
+├── public/
+├── src/
+│ ├── App.jsx
+│ ├── index.css
+│ └── ...
+├── package.json
+└── README.md
+
+
+## Google Sheet Data Format
+
+Your sheet should have the following columns (case-sensitive):
+
+| Question | Answer | Choice1 | Choice2 | Choice3 |
+|----------|--------|---------|---------|---------|
+| What is 2+2? | 4 | 3 | 5 | 2 |
+
+Your app fetches from the following URL (replace with your own if needed):
+https://opensheet.elk.sh/1XVzAKIEB71DdcHChXd47Ms3NJ6FBpuTs23E0HwXlNaU/quiz_data
+
+
+## Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/yourusername/flashcard-quiz.git
+cd flashcard-quiz
+```
+2. Install dependencies:
+
+```bash
+npm install
+```
+3. Start the development server:
+
+```bash
+npm run dev
+```
+
+## How It Works
+
+- On load, the app fetches flashcard data from the provided Google Sheet.
+- Flashcards are displayed one at a time.
+- Clicking the card toggles between showing the question and the answer.
+- Navigation buttons allow cycling forward and backward through the deck.
+
+## Customization
+
+1. Update the Google Sheet link in the fetch() call inside App.jsx.
+2. Ensure your new sheet uses the correct column headers.
+
+To modify styles, edit index.css or customize the Tailwind classes directly in the component.
+
+## Error Handling
+
+If the app fails to load flashcards, an error will be printed to the console. Make sure:
+- Your Google Sheet is published to the web and accessible.
+- The sheet format matches the expected structure.
