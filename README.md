@@ -16,17 +16,6 @@ A simple React-based flashcard quiz application that dynamically loads quiz ques
 - TailwindCSS
 - OpenSheet API for Google Sheets integration
 
-## Project Structure
-
-├── public/
-├── src/
-│ ├── App.jsx
-│ ├── index.css
-│ └── ...
-├── package.json
-└── README.md
-
-
 ## Google Sheet Data Format
 
 Your sheet should have the following columns (case-sensitive):
